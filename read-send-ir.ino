@@ -39,12 +39,12 @@
 
 int IRledPin =  3;      // IR emitter LED connected to digital pin 3
 int orangeLedPin =  7;  // Orange LED connected to digital pin 7
-int buttonPin1 = 4;     // "Send" push-button connected to digital pin 4
+int sendButton = 4;     // "Send" push-button connected to digital pin 4
 int blueLedPin =  6;    // Blue LED connected to digital pin 6
-int buttonPin2 = 5;     // "Receive" push-button connected to digital pin 5
+int receiveButton = 5;     // "Receive" push-button connected to digital pin 5
 
-int buttonState1 = 0;
-int buttonState2 = 0;
+int sendButtonState = 0;
+int receiveButtonState = 0;
 
 // Store up to 100 pulse pairs
 uint16_t pulses[100][2]; // Pair is high and low pulse
@@ -59,14 +59,14 @@ void pulseIR(long microsecs) {
   while (microsecs > 0) {
    // 38 kHz is about 13 microseconds high and 13 microseconds low
    digitalWrite(IRledPin, HIGH);  // 3 microseconds
-   delayMicroseconds(10);         /* hang out for 10 microseconds,
+   delayMicroseconds(9);         /* hang out for 10 microseconds,
                                      you can also change this to 9 if its not working */
    digitalWrite(IRledPin, LOW);   // 3 microseconds
-   delayMicroseconds(10);         /* hang out for 10 microseconds,
+   delayMicroseconds(9);         /* hang out for 10 microseconds,
                                      you can also change this to 9 if its not working */
 
    // So 26 microseconds altogether
-   microsecs -= 26;
+   microsecs -= 24;
   }
 
   sei();  // Turn them back on
@@ -88,11 +88,11 @@ void setup() {
   // Initialize the Orange LED pin as an output
   pinMode(orangeLedPin, OUTPUT);
   // Initialize the "Send" push-button pin as an input
-  pinMode(buttonPin1, INPUT);
+  pinMode(sendButton, INPUT);
   // Initialize the Orange LED pin as an output
   pinMode(blueLedPin, OUTPUT);
   // Initialize the "Send" push-button pin as an input
-  pinMode(buttonPin2, INPUT);
+  pinMode(receiveButton, INPUT);
   // Set uart baudrate
   Serial.begin(9600);
 }
@@ -134,17 +134,18 @@ void printpulses(void) {
 
 void loop() {
    // Read the state of the "Send" push-button value
-  buttonState1 = digitalRead(buttonPin1);
+  sendButtonState = digitalRead(sendButton);
   // Read the state of the "Receive" push-button value
-  buttonState2 = digitalRead(buttonPin2);
+  receiveButtonState = digitalRead(receiveButton);
 
-if (buttonState1 == HIGH) {
+if (sendButtonState == HIGH) {
     Serial.println("Sending IR signal");
     digitalWrite(orangeLedPin, HIGH);
     delay(200);
     digitalWrite(orangeLedPin, LOW);
     delay(200);
 
+    printpulses();
     SendIRCode();
     //delay(15);  // wait 15 milliseconds before sending it again
     //SendIRCode();  // repeat IR code if it is neccesary
@@ -152,9 +153,9 @@ if (buttonState1 == HIGH) {
     delay(5000);  // wait 5 seconds to resend the code
     }
 
- if ((buttonState2==HIGH) || (currentpulse != 0)){
+ if ((receiveButtonState==HIGH) || (currentpulse != 0)){
 
-   if (buttonState2==HIGH){
+   if (receiveButtonState==HIGH){
     Serial.println("Ready to decode IR!");
     digitalWrite(blueLedPin, HIGH);
     delay(200);
@@ -202,3 +203,4 @@ if (buttonState1 == HIGH) {
 
  }
 }
+
